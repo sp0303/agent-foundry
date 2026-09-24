@@ -1,0 +1,787 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Agent Foundry — a multi-vendor agent team that builds tools</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..800&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#EDF1F3; --paper-2:#E2E8EC; --ink:#15202B; --muted:#56636E; --grid:#CDD6DC;
+  --red:#B3261E; --claude:#9C5B14; --gemini:#1B7263; --openai:#5343A0; --neutral:#3E5566;
+  --card:#F7F9FA;
+  --sans:"Archivo", "Helvetica Neue", Arial, sans-serif;
+  --serif:"Newsreader", Georgia, "Times New Roman", serif;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --paper:#11181E; --paper-2:#18222A; --ink:#E3E9ED; --muted:#98A6B0; --grid:#26323B;
+    --red:#F0776B; --claude:#E1A15C; --gemini:#4CC3AB; --openai:#A597F2; --neutral:#8FB0C6; --card:#161F26;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#11181E; --paper-2:#18222A; --ink:#E3E9ED; --muted:#98A6B0; --grid:#26323B;
+  --red:#F0776B; --claude:#E1A15C; --gemini:#4CC3AB; --openai:#A597F2; --neutral:#8FB0C6; --card:#161F26;
+}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{
+  margin:0; background-color:var(--paper); color:var(--ink);
+  background-image:
+    linear-gradient(var(--grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+  background-size:32px 32px; background-attachment:fixed;
+  font-family:var(--serif); font-size:1.075rem; line-height:1.62;
+}
+.sheet{max-width:1080px; margin:0 auto; padding:28px 20px 80px}
+.sheet-inner{background:var(--paper); border:1.5px solid var(--ink); padding:clamp(18px,4vw,48px)}
+h1,h2,h3,h4{font-family:var(--sans); line-height:1.1; margin:0}
+h1{font-size:clamp(2.6rem,7.5vw,5.4rem); font-weight:800; font-stretch:68%; letter-spacing:-.01em}
+h2{font-size:clamp(1.7rem,3.6vw,2.4rem); font-weight:750; font-stretch:75%; margin:0 0 .6rem}
+h3{font-size:1.15rem; font-weight:700; font-stretch:90%; margin:1.4rem 0 .4rem}
+p{margin:.6rem 0; max-width:70ch}
+a{color:var(--neutral); text-decoration-thickness:1px; text-underline-offset:3px}
+a:focus-visible, button:focus-visible{outline:2px solid var(--red); outline-offset:2px}
+section{padding-top:2.6rem; margin-top:2.6rem; border-top:1.5px solid var(--ink)}
+.sec-no{font-family:var(--sans); font-stretch:70%; font-weight:600; color:var(--red); font-size:1rem; display:block; margin-bottom:.3rem}
+.lede{font-size:1.25rem; line-height:1.5; max-width:62ch}
+
+/* title block */
+.titleblock{display:grid; grid-template-columns:2.2fr 1fr 1fr; border:1.5px solid var(--ink); margin-top:1.6rem; font-family:var(--sans)}
+.titleblock > div{padding:10px 14px; border-right:1px solid var(--ink); border-top:1px solid var(--ink)}
+.titleblock > div:nth-child(-n+3){border-top:0}
+.titleblock > div:nth-child(3n){border-right:0}
+.tb-k{font-size:.72rem; color:var(--muted); font-weight:500; letter-spacing:.02em}
+.tb-v{font-size:.98rem; font-weight:600; font-stretch:90%}
+@media (max-width:640px){
+  .titleblock{grid-template-columns:1fr 1fr}
+  .titleblock > div{border-right:1px solid var(--ink)!important; border-top:1px solid var(--ink)!important}
+  .titleblock > div:nth-child(2n){border-right:0!important}
+  .titleblock > div:nth-child(-n+2){border-top:0!important}
+  .titleblock > div:first-child{grid-column:1/-1; border-right:0!important}
+  .titleblock > div:nth-child(2){border-top:1px solid var(--ink)!important}
+}
+
+/* figures */
+figure{margin:1.4rem 0; }
+.fig{overflow-x:auto; border:1px solid var(--ink); background:var(--card); padding:10px}
+.fig svg{display:block; min-width:760px; width:100%; height:auto}
+figcaption{font-family:var(--sans); font-size:.85rem; color:var(--muted); margin-top:.5rem; font-stretch:90%}
+figcaption b{color:var(--ink)}
+svg text{font-family:var(--sans); fill:var(--ink)}
+.s-ink{stroke:var(--ink)} .f-card{fill:var(--card)} .f-paper{fill:var(--paper-2)}
+.s-red{stroke:var(--red)} .f-red{fill:var(--red)}
+.s-cl{stroke:var(--claude)} .f-cl{fill:var(--claude)}
+.s-ge{stroke:var(--gemini)} .f-ge{fill:var(--gemini)}
+.s-oa{stroke:var(--openai)} .f-oa{fill:var(--openai)}
+.s-nu{stroke:var(--neutral)} .f-nu{fill:var(--neutral)}
+.s-mu{stroke:var(--muted)} .f-mu{fill:var(--muted)}
+.t-mu{fill:var(--muted)!important} .t-red{fill:var(--red)!important} .t-cl{fill:var(--claude)!important} .t-ge{fill:var(--gemini)!important} .t-oa{fill:var(--openai)!important}
+
+/* legend */
+.legend{display:flex; flex-wrap:wrap; gap:14px 22px; font-family:var(--sans); font-size:.85rem; margin:.4rem 0 0}
+.legend span{display:inline-flex; align-items:center; gap:7px}
+.sw{width:14px; height:14px; border:2px solid; display:inline-block}
+
+/* tables */
+.tbl-wrap{overflow-x:auto; border:1px solid var(--ink); margin:1rem 0}
+table{border-collapse:collapse; width:100%; min-width:680px; font-size:.95rem}
+th,td{text-align:left; vertical-align:top; padding:10px 12px; border-bottom:1px solid var(--grid)}
+th{font-family:var(--sans); font-weight:650; font-stretch:88%; font-size:.85rem; background:var(--paper-2); border-bottom:1px solid var(--ink)}
+tr:last-child td{border-bottom:0}
+td b{font-family:var(--sans); font-stretch:92%}
+
+.vendor{font-family:var(--sans); font-size:.8rem; font-weight:600; padding:1px 7px; border:1.5px solid; white-space:nowrap}
+.v-cl{color:var(--claude); border-color:var(--claude)}
+.v-ge{color:var(--gemini); border-color:var(--gemini)}
+.v-oa{color:var(--openai); border-color:var(--openai)}
+.v-nu{color:var(--neutral); border-color:var(--neutral)}
+
+/* verdict */
+.changes{display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:0; border:1px solid var(--ink); margin-top:1rem}
+.change{padding:16px 18px; border-right:1px solid var(--grid); border-bottom:1px solid var(--grid); background:var(--card)}
+.change h4{font-size:1.02rem; font-weight:700; font-stretch:88%; margin-bottom:.35rem}
+.change p{margin:0; font-size:.98rem}
+.change .tag{font-family:var(--sans); font-size:.78rem; color:var(--red); font-weight:600}
+
+/* role cards (tabs) */
+.roles-nav{display:flex; flex-wrap:wrap; gap:0; border:1px solid var(--ink); border-bottom:0; margin-top:1rem}
+.roles-nav button{font-family:var(--sans); font-stretch:85%; font-weight:600; font-size:.95rem; background:var(--paper-2); color:var(--ink); border:0; border-right:1px solid var(--ink); padding:10px 16px; cursor:pointer}
+.roles-nav button[aria-selected="true"]{background:var(--ink); color:var(--paper)}
+.role-panel{border:1px solid var(--ink); padding:18px 22px; background:var(--card)}
+.role-panel[hidden]{display:none}
+.role-panel ul{margin:.4rem 0 .8rem; padding-left:1.2rem}
+.role-panel li{margin:.25rem 0; max-width:72ch}
+.cols{display:grid; grid-template-columns:1fr 1fr; gap:10px 32px}
+@media (max-width:720px){.cols{grid-template-columns:1fr}}
+.kv{font-family:var(--sans); font-size:.86rem; color:var(--muted)}
+
+pre.code{font-family:ui-monospace, "SF Mono", Menlo, Consolas, monospace; font-size:.82rem; line-height:1.5; background:var(--paper-2); border:1px solid var(--ink); padding:14px 16px; overflow-x:auto; margin:1rem 0}
+
+/* stack */
+.stack{border:1px solid var(--ink); margin-top:1rem}
+.layer{display:grid; grid-template-columns:200px 1fr; border-bottom:1px solid var(--grid)}
+.layer:last-child{border-bottom:0}
+.layer .ln{font-family:var(--sans); font-weight:700; font-stretch:85%; padding:12px 14px; background:var(--paper-2); border-right:1px solid var(--ink)}
+.layer .ln small{display:block; font-weight:500; color:var(--muted); font-size:.78rem}
+.layer .lc{padding:12px 16px; font-size:.97rem}
+@media (max-width:640px){.layer{grid-template-columns:1fr}.layer .ln{border-right:0; border-bottom:1px solid var(--grid)}}
+
+ol.phases{padding-left:1.3rem} ol.phases li{margin:.5rem 0; max-width:72ch}
+.note{border-left:4px solid var(--red); padding:4px 0 4px 16px; margin:1.2rem 0; max-width:70ch}
+.sources li{font-size:.92rem; margin:.3rem 0}
+footer{margin-top:3rem; font-family:var(--sans); font-size:.82rem; color:var(--muted)}
+@media (prefers-reduced-motion:no-preference){
+  .flow{stroke-dasharray:6 6; animation:dash 1.6s linear infinite}
+  @keyframes dash{to{stroke-dashoffset:-24}}
+}
+</style>
+</head>
+<body>
+<div class="sheet"><div class="sheet-inner">
+
+<header>
+  <h1>Agent Foundry</h1>
+  <p class="lede">A firm made of agents: you talk to one business analyst, it hands your idea to an architect, the architect runs a crew of developer, QA and DevOps agents across Claude, Gemini and OpenAI, and the finished tool comes back to you for sign-off.</p>
+  <div class="titleblock" role="group" aria-label="Document details">
+    <div><div class="tb-k">Project</div><div class="tb-v">Multi-vendor agent team that builds tools</div></div>
+    <div><div class="tb-k">Sheet</div><div class="tb-v">A-01, research &amp; concept</div></div>
+    <div><div class="tb-k">Revision</div><div class="tb-v">R1, 23 Sep 2026</div></div>
+    <div><div class="tb-k">Front door</div><div class="tb-v">One chat session (BA agent)</div></div>
+    <div><div class="tb-k">Wire protocols</div><div class="tb-v">A2A + MCP</div></div>
+    <div><div class="tb-k">Status</div><div class="tb-v">Brainstorm, not yet built</div></div>
+  </div>
+</header>
+
+<!-- 1 -->
+<section id="verdict">
+  <span class="sec-no">1. Verdict on your raw plan</span>
+  <h2>The shape is right. Six changes make it survive contact with reality.</h2>
+  <p>Your plan is essentially a software company expressed as agents, which is the most-studied multi-agent pattern there is. MetaGPT (product manager, architect, project manager, engineer run by written SOPs) and ChatDev (CEO, CTO, programmer, tester) both proved it works for small projects. The same research also shows where it breaks: a Berkeley study of seven multi-agent frameworks found that most failures come from unclear specs, agents drifting out of their roles, and weak verification, not from the models being too dumb. So the changes below are all about contracts, verification and separation of duties.</p>
+  <div class="changes">
+    <div class="change"><span class="tag">Add a role</span><h4>Separate QA / reviewer agent</h4><p>If the architect writes the tasks, answers the questions and also judges the merge, it grades its own homework. Give review to an independent agent, ideally on a different vendor than the dev who wrote the code.</p></div>
+    <div class="change"><span class="tag">Change a rule</span><h4>CI is the judge, not the architect</h4><p>“Runs test cases” should mean a pipeline with required checks. The architect reads the results and decides; it never merges on its own opinion that tests pass.</p></div>
+    <div class="change"><span class="tag">Add a gate</span><h4>Human approves the plan, not just the result</h4><p>Put one approval after the architect’s scope and before any code. Catching a wrong scope costs one message; catching it after deployment costs the whole run.</p></div>
+    <div class="change"><span class="tag">Change a rule</span><h4>Questions travel as structured requests</h4><p>Devs don’t chat freely. A blocked dev returns a formal question (A2A’s “input required” state) to the architect, who answers or escalates to the BA and then you.</p></div>
+    <div class="change"><span class="tag">Change a rule</span><h4>Parallelise only independent modules</h4><p>Coding has fewer truly parallel pieces than research. The architect should cut work along interfaces (API contracts first) so parallel branches don’t collide at merge.</p></div>
+    <div class="change"><span class="tag">Add a component</span><h4>A tool registry, so tools build on tools</h4><p>Your goal is agents that build tools. Every finished tool gets published as an MCP server with a card describing it, so the next project’s agents can reuse it instead of rebuilding.</p></div>
+  </div>
+</section>
+
+<!-- 2 -->
+<section id="topology">
+  <span class="sec-no">2. System topology</span>
+  <h2>Who talks to whom</h2>
+  <p>A hub-and-spoke: the architect is the hub for all engineering traffic, the BA is the only agent that ever talks to you. Agents talk to each other over A2A; agents reach tools, repos and pipelines over MCP. Colour marks the vendor each seat could run on.</p>
+  <figure>
+    <div class="fig">
+<svg viewBox="0 0 980 600" role="img" aria-labelledby="t1">
+  <title id="t1">Topology: human talks to BA, BA to architect, architect to dev, QA and DevOps agents on three vendors, all on shared Git, CI and tool registry.</title>
+  <defs>
+    <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" class="f-mu"/></marker>
+    <marker id="ahr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" class="f-red"/></marker>
+  </defs>
+
+  <!-- human -->
+  <rect x="30" y="30" width="170" height="64" class="f-paper s-ink" stroke-width="1.5"/>
+  <text x="115" y="58" text-anchor="middle" font-weight="700" font-size="16">You</text>
+  <text x="115" y="78" text-anchor="middle" font-size="12" class="t-mu">idea · approvals · feedback</text>
+
+  <!-- BA -->
+  <rect x="30" y="180" width="170" height="92" class="f-card s-cl" stroke-width="2.5"/>
+  <text x="115" y="208" text-anchor="middle" font-weight="700" font-size="15">Business analyst</text>
+  <text x="115" y="228" text-anchor="middle" font-size="12" class="t-mu">requirements · PRD</text>
+  <text x="115" y="246" text-anchor="middle" font-size="12" class="t-mu">acceptance criteria</text>
+  <text x="115" y="264" text-anchor="middle" font-size="11" class="t-cl">Opus 5.5 · high effort</text>
+
+  <!-- architect -->
+  <rect x="330" y="150" width="280" height="150" class="f-card s-red" stroke-width="3"/>
+  <text x="470" y="182" text-anchor="middle" font-weight="800" font-size="18">Architect</text>
+  <text x="470" y="204" text-anchor="middle" font-size="12" class="t-mu">scope · ADRs · task graph · interfaces</text>
+  <text x="470" y="222" text-anchor="middle" font-size="12" class="t-mu">answers dev questions</text>
+  <text x="470" y="240" text-anchor="middle" font-size="12" class="t-mu">merge decision on CI evidence</text>
+  <text x="470" y="258" text-anchor="middle" font-size="12" class="t-mu">release go / no-go</text>
+  <text x="470" y="284" text-anchor="middle" font-size="11" class="t-cl">Opus 5.5 max effort, or Fable 5.1</text>
+
+  <!-- QA -->
+  <rect x="750" y="140" width="200" height="74" class="f-card s-oa" stroke-width="2.5"/>
+  <text x="850" y="168" text-anchor="middle" font-weight="700" font-size="15">QA / reviewer</text>
+  <text x="850" y="186" text-anchor="middle" font-size="12" class="t-mu">code review · test design</text>
+  <text x="850" y="204" text-anchor="middle" font-size="11" class="t-oa">other vendor than the author</text>
+
+  <!-- DevOps -->
+  <rect x="750" y="250" width="200" height="74" class="f-card s-ge" stroke-width="2.5"/>
+  <text x="850" y="278" text-anchor="middle" font-weight="700" font-size="15">DevOps</text>
+  <text x="850" y="296" text-anchor="middle" font-size="12" class="t-mu">pipelines · infra · deploy</text>
+  <text x="850" y="314" text-anchor="middle" font-size="11" class="t-mu">mid model, tight permissions</text>
+
+  <!-- devs -->
+  <rect x="200" y="380" width="170" height="80" class="f-card s-cl" stroke-width="2.5"/>
+  <text x="285" y="408" text-anchor="middle" font-weight="700" font-size="14">Dev A · backend</text>
+  <text x="285" y="426" text-anchor="middle" font-size="11" class="t-mu">branch feat/api</text>
+  <text x="285" y="446" text-anchor="middle" font-size="11" class="t-cl">Claude Code · Sonnet 5</text>
+
+  <rect x="390" y="380" width="170" height="80" class="f-card s-oa" stroke-width="2.5"/>
+  <text x="475" y="408" text-anchor="middle" font-weight="700" font-size="14">Dev B · core logic</text>
+  <text x="475" y="426" text-anchor="middle" font-size="11" class="t-mu">branch feat/engine</text>
+  <text x="475" y="446" text-anchor="middle" font-size="11" class="t-oa">Codex · GPT-6 Astra</text>
+
+  <rect x="580" y="380" width="170" height="80" class="f-card s-ge" stroke-width="2.5"/>
+  <text x="665" y="408" text-anchor="middle" font-weight="700" font-size="14">Dev C · UI</text>
+  <text x="665" y="426" text-anchor="middle" font-size="11" class="t-mu">branch feat/ui</text>
+  <text x="665" y="446" text-anchor="middle" font-size="11" class="t-ge">Antigravity · Gemini 3.x</text>
+
+  <!-- substrate -->
+  <rect x="30" y="510" width="920" height="66" class="f-paper s-ink" stroke-width="1.5"/>
+  <line x1="260" y1="510" x2="260" y2="576" class="s-ink"/>
+  <line x1="490" y1="510" x2="490" y2="576" class="s-ink"/>
+  <line x1="720" y1="510" x2="720" y2="576" class="s-ink"/>
+  <text x="145" y="538" text-anchor="middle" font-weight="700" font-size="13">Git repo</text>
+  <text x="145" y="558" text-anchor="middle" font-size="11" class="t-mu">branches · PRs · ADRs · AGENTS.md</text>
+  <text x="375" y="538" text-anchor="middle" font-weight="700" font-size="13">CI / test runner</text>
+  <text x="375" y="558" text-anchor="middle" font-size="11" class="t-mu">required checks · SAST · SBOM</text>
+  <text x="605" y="538" text-anchor="middle" font-weight="700" font-size="13">Tool registry</text>
+  <text x="605" y="558" text-anchor="middle" font-size="11" class="t-mu">built tools as MCP servers</text>
+  <text x="835" y="538" text-anchor="middle" font-weight="700" font-size="13">Trace &amp; cost log</text>
+  <text x="835" y="558" text-anchor="middle" font-weight="400" font-size="11" class="t-mu">OpenTelemetry · token budget</text>
+
+  <!-- edges -->
+  <line x1="115" y1="94" x2="115" y2="178" class="s-mu" stroke-width="1.8" marker-start="url(#ah)" marker-end="url(#ah)"/>
+  <text x="124" y="140" font-size="11" class="t-mu">chat</text>
+
+  <line x1="202" y1="226" x2="328" y2="226" class="s-red flow" stroke-width="2" marker-start="url(#ahr)" marker-end="url(#ahr)"/>
+  <text x="212" y="216" font-size="11" class="t-red">A2A: brief ⇄ report</text>
+
+  <line x1="612" y1="190" x2="748" y2="178" class="s-red" stroke-width="2" marker-start="url(#ahr)" marker-end="url(#ahr)"/>
+  <text x="640" y="172" font-size="11" class="t-red">A2A: review task</text>
+  <line x1="612" y1="262" x2="748" y2="286" class="s-red" stroke-width="2" marker-start="url(#ahr)" marker-end="url(#ahr)"/>
+  <text x="630" y="300" font-size="11" class="t-red">A2A: release task</text>
+
+  <line x1="400" y1="302" x2="300" y2="378" class="s-red" stroke-width="2" marker-end="url(#ahr)"/>
+  <line x1="470" y1="302" x2="470" y2="378" class="s-red" stroke-width="2" marker-end="url(#ahr)"/>
+  <line x1="540" y1="302" x2="650" y2="378" class="s-red" stroke-width="2" marker-end="url(#ahr)"/>
+  <text x="482" y="344" font-size="11" class="t-red">A2A task (spec + DoD)</text>
+  <path d="M250 378 C 230 330, 290 300, 340 292" fill="none" class="s-mu" stroke-width="1.5" stroke-dasharray="4 4" marker-end="url(#ah)"/>
+  <text x="170" y="336" font-size="11" class="t-mu">question</text>
+  <text x="170" y="350" font-size="11" class="t-mu">(input-required)</text>
+
+  <line x1="285" y1="462" x2="200" y2="508" class="s-mu" stroke-width="1.5" marker-end="url(#ah)"/>
+  <line x1="475" y1="462" x2="220" y2="508" class="s-mu" stroke-width="1.5" marker-end="url(#ah)"/>
+  <line x1="665" y1="462" x2="240" y2="508" class="s-mu" stroke-width="1.5" marker-end="url(#ah)"/>
+  <text x="318" y="494" font-size="11" class="t-mu">push branch (MCP: git)</text>
+  <line x1="850" y1="216" x2="850" y2="248" class="s-mu" stroke-width="0"/>
+  <line x1="800" y1="326" x2="640" y2="508" class="s-mu" stroke-width="1.5" marker-end="url(#ah)"/>
+  <text x="742" y="440" font-size="11" class="t-mu">publish tool</text>
+  <line x1="770" y1="216" x2="420" y2="508" class="s-mu" stroke-width="1.2" stroke-dasharray="3 5" marker-end="url(#ah)"/>
+  <text x="648" y="360" font-size="11" class="t-mu"></text>
+</svg>
+    </div>
+    <figcaption><b>Figure 1.</b> Red lines are agent-to-agent (A2A) traffic, always through the architect. Grey lines are agent-to-system traffic over MCP. The dashed return path is how a blocked developer asks a question.</figcaption>
+    <div class="legend" aria-label="Vendor legend">
+      <span><i class="sw" style="border-color:var(--claude)"></i>Anthropic seat</span>
+      <span><i class="sw" style="border-color:var(--openai)"></i>OpenAI seat</span>
+      <span><i class="sw" style="border-color:var(--gemini)"></i>Google seat</span>
+      <span><i class="sw" style="border-color:var(--red)"></i>Decision authority</span>
+    </div>
+  </figure>
+  <h3>One session or two for BA and architect?</h3>
+  <p>You described the main agent as “BA + architect”. I’d keep them as two agents behind one chat. The BA’s context stays full of your language, your users and your priorities; the architect’s context stays full of code, interfaces and constraints. Mixing them means every design decision pays the token cost of the whole requirements conversation, and the BA loses its ability to challenge the architect on your behalf. You still only ever talk to one session.</p>
+</section>
+
+<!-- 3 -->
+<section id="lifecycle">
+  <span class="sec-no">3. Lifecycle</span>
+  <h2>From raw idea to verified tool, in ten steps</h2>
+  <p>Each lane is a seat, each box is a step in order. The two red diamonds are the only moments the system waits for you.</p>
+  <figure>
+    <div class="fig">
+<svg viewBox="0 0 1040 430" role="img" aria-labelledby="t2">
+  <title id="t2">Swimlane lifecycle across human, BA, architect, developers, QA and DevOps.</title>
+  <defs><marker id="a2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0 L10 5 L0 10 z" class="f-mu"/></marker></defs>
+  <g font-size="12">
+    <!-- lanes -->
+    <g>
+      <rect x="0" y="20" width="1040" height="64" class="f-paper"/>
+      <rect x="0" y="148" width="1040" height="64" class="f-paper"/>
+      <rect x="0" y="276" width="1040" height="64" class="f-paper"/>
+      <line x1="110" y1="20" x2="110" y2="404" class="s-ink"/>
+      <text x="12" y="57" font-weight="700">You</text>
+      <text x="12" y="121" font-weight="700">BA</text>
+      <text x="12" y="185" font-weight="700">Architect</text>
+      <text x="12" y="249" font-weight="700">Devs</text>
+      <text x="12" y="313" font-weight="700">QA</text>
+      <text x="12" y="377" font-weight="700">DevOps</text>
+    </g>
+    <!-- step boxes: centers x = 160 + i*92 -->
+    <!-- 1 human idea -->
+    <rect x="122" y="32" width="84" height="40" class="f-card s-ink" stroke-width="1.5"/>
+    <text x="164" y="50" text-anchor="middle" font-weight="700">1 Raw idea</text><text x="164" y="65" text-anchor="middle" class="t-mu" font-size="10">any form</text>
+    <!-- 2 BA discovery -->
+    <rect x="214" y="96" width="84" height="40" class="f-card s-cl" stroke-width="2"/>
+    <text x="256" y="114" text-anchor="middle" font-weight="700">2 Discovery</text><text x="256" y="129" text-anchor="middle" class="t-mu" font-size="10">Q&amp;A, PRD</text>
+    <!-- 3 architect scope -->
+    <rect x="306" y="160" width="84" height="40" class="f-card s-red" stroke-width="2"/>
+    <text x="348" y="178" text-anchor="middle" font-weight="700">3 Scope</text><text x="348" y="193" text-anchor="middle" class="t-mu" font-size="10">ADRs, tasks</text>
+    <!-- 4 approve plan (diamond) human -->
+    <polygon points="440,30 474,52 440,74 406,52" class="f-card s-red" stroke-width="2.5"/>
+    <text x="440" y="56" text-anchor="middle" font-weight="700" font-size="11">4 OK?</text>
+    <!-- 5 build devs -->
+    <rect x="490" y="224" width="84" height="40" class="f-card s-cl" stroke-width="2"/>
+    <text x="532" y="242" text-anchor="middle" font-weight="700">5 Build</text><text x="532" y="257" text-anchor="middle" class="t-mu" font-size="10">branch per task</text>
+    <!-- 6 review QA -->
+    <rect x="582" y="288" width="84" height="40" class="f-card s-oa" stroke-width="2"/>
+    <text x="624" y="306" text-anchor="middle" font-weight="700">6 Review</text><text x="624" y="321" text-anchor="middle" class="t-mu" font-size="10">tests + CI</text>
+    <!-- 7 merge architect -->
+    <rect x="674" y="160" width="84" height="40" class="f-card s-red" stroke-width="2"/>
+    <text x="716" y="178" text-anchor="middle" font-weight="700">7 Merge</text><text x="716" y="193" text-anchor="middle" class="t-mu" font-size="10">integration test</text>
+    <!-- 8 deploy staging -->
+    <rect x="766" y="352" width="84" height="40" class="f-card s-ge" stroke-width="2"/>
+    <text x="808" y="370" text-anchor="middle" font-weight="700">8 Deploy</text><text x="808" y="385" text-anchor="middle" class="t-mu" font-size="10">staging</text>
+    <!-- 9 BA report -->
+    <rect x="858" y="96" width="84" height="40" class="f-card s-cl" stroke-width="2"/>
+    <text x="900" y="114" text-anchor="middle" font-weight="700">9 Report</text><text x="900" y="129" text-anchor="middle" class="t-mu" font-size="10">vs acceptance</text>
+    <!-- 10 verify human -->
+    <polygon points="992,30 1026,52 992,74 958,52" class="f-card s-red" stroke-width="2.5"/>
+    <text x="992" y="56" text-anchor="middle" font-weight="700" font-size="11">10 Verify</text>
+
+    <!-- arrows -->
+    <path d="M206 52 H256 V94" fill="none" class="s-mu" stroke-width="1.5" marker-end="url(#a2)"/>
+    <path d="M298 116 H348 V158" fill="none" class="s-mu" stroke-width="1.5" marker-end="url(#a2)"/>
+    <path d="M390 180 H440 V76" fill="none" class="s-mu" stroke-width="1.5" marker-end="url(#a2)"/>
+    <path d="M474 52 H532 V222" fill="none" class="s-mu" stroke-width="1.5" marker-end="url(#a2)"/>
+    <path d="M574 244 H624 V286" fill="none" class="s-mu" stroke-width="1.5" marker-end="url(#a2)"/>
+    <path d="M666 308 H716 V202" fill="none" class="s-mu" stroke-width="1.5" marker-end="url(#a2)"/>
+    <path d="M758 180 H808 V350" fill="none" class="s-mu" stroke-width="1.5" marker-end="url(#a2)"/>
+    <path d="M850 372 H900 V138" fill="none" class="s-mu" stroke-width="1.5" marker-end="url(#a2)"/>
+    <path d="M942 116 H992 V76" fill="none" class="s-mu" stroke-width="1.5" marker-end="url(#a2)"/>
+    <!-- loops -->
+    <path d="M232 94 C 225 75, 205 72, 200 72" fill="none" class="s-red" stroke-width="1.3" stroke-dasharray="3 4" marker-end="url(#a2)"/>
+    <text x="150" y="94" font-size="10" class="t-red">clarify</text>
+    <path d="M510 224 C 480 205, 430 200, 392 196" fill="none" class="s-red" stroke-width="1.3" stroke-dasharray="3 4" marker-end="url(#a2)"/>
+    <text x="410" y="222" font-size="10" class="t-red">question</text>
+    <path d="M600 330 C 560 350, 520 300, 520 266" fill="none" class="s-red" stroke-width="1.3" stroke-dasharray="3 4" marker-end="url(#a2)"/>
+    <text x="530" y="352" font-size="10" class="t-red">changes requested</text>
+    <path d="M992 76 C 990 170, 700 150, 560 226" fill="none" class="s-red" stroke-width="1.3" stroke-dasharray="3 4" marker-end="url(#a2)"/>
+    <text x="840" y="170" font-size="10" class="t-red">feedback → next iteration</text>
+    <text x="992" y="96" text-anchor="middle" font-size="10" class="t-mu">then prod</text>
+  </g>
+</svg>
+    </div>
+    <figcaption><b>Figure 2.</b> Dashed red lines are the feedback loops. Production deploy happens only after step 10, and it is DevOps that runs it, triggered by your sign-off.</figcaption>
+  </figure>
+  <ol class="phases">
+    <li><b>Raw idea.</b> Voice note, paragraph, screenshot, whatever you have.</li>
+    <li><b>Discovery.</b> The BA asks at most a handful of sharp questions, then writes a PRD: problem, users, user stories, acceptance criteria in Given/When/Then form, non-goals, and success metrics.</li>
+    <li><b>Scope and design.</b> The architect turns the PRD into architecture decision records, a component view, interface contracts, a task graph with dependencies, and a risk list.</li>
+    <li><b>Plan approval.</b> The BA translates the architect’s plan back into plain language for you. You approve, trim or redirect. Nothing is built before this.</li>
+    <li><b>Build.</b> Each dev gets one task contract, works in its own branch or worktree, writes tests with the code, and opens a PR. Questions go back to the architect as structured requests.</li>
+    <li><b>Review.</b> The QA agent reviews the diff against the task’s acceptance criteria and adds missing tests. CI runs lint, unit, integration, security scan and licence checks.</li>
+    <li><b>Merge.</b> The architect merges only green PRs, in dependency order, then runs the integration and end-to-end suite on main.</li>
+    <li><b>Staging deploy.</b> DevOps ships to a staging environment through the pipeline, runs smoke tests, and returns a URL plus a rollback command.</li>
+    <li><b>Report.</b> The BA checks the result against each acceptance criterion and sends you a short report: what works, what doesn’t, what it cost.</li>
+    <li><b>Verify.</b> You try it. Feedback becomes new stories and the loop restarts at step 2 or 3. Approval triggers the production deploy and publishes the tool to the registry.</li>
+  </ol>
+</section>
+
+<!-- 4 -->
+<section id="roles">
+  <span class="sec-no">4. Roles and responsibilities</span>
+  <h2>Every seat, with its authority written down</h2>
+  <p>Role drift is one of the most common multi-agent failure modes, so each seat gets a charter: what it owns, what it decides, what it must never do, and what it hands over. These become each agent’s system prompt and its A2A Agent Card.</p>
+  <div class="roles-nav" role="tablist" aria-label="Agent roles">
+    <button role="tab" aria-selected="true" aria-controls="r-arch" id="tab-arch">Architect</button>
+    <button role="tab" aria-selected="false" aria-controls="r-ba" id="tab-ba">Business analyst</button>
+    <button role="tab" aria-selected="false" aria-controls="r-dev" id="tab-dev">Developer</button>
+    <button role="tab" aria-selected="false" aria-controls="r-qa" id="tab-qa">QA / reviewer</button>
+    <button role="tab" aria-selected="false" aria-controls="r-ops" id="tab-ops">DevOps</button>
+  </div>
+
+  <div class="role-panel" role="tabpanel" id="r-arch" aria-labelledby="tab-arch">
+    <p class="kv">Persona: principal architect, 20 years across distributed systems, security and delivery. Reports to BA. Directs devs, QA, DevOps.</p>
+    <div class="cols">
+      <div>
+        <h3>Owns</h3>
+        <ul>
+          <li>Scope boundary: what is in, what is out, what is deferred.</li>
+          <li>Architecture decision records for every non-trivial choice (context, options, decision, consequences).</li>
+          <li>Component and container views in the C4 style, plus data model.</li>
+          <li>Interface contracts first: OpenAPI, JSON Schema or MCP tool schemas, written before devs start.</li>
+          <li>The task graph: decomposition, dependencies, which tasks can run in parallel.</li>
+          <li>Definition of Ready and Definition of Done per task.</li>
+          <li>The repository’s AGENTS.md: coding standards, commands, conventions every dev agent reads.</li>
+        </ul>
+        <h3>Decides</h3>
+        <ul>
+          <li>Tech stack, patterns, library choices, build vs reuse (checks the tool registry first).</li>
+          <li>Which model and vendor each task goes to, within the budget.</li>
+          <li>Merge order and whether a green PR is actually acceptable.</li>
+          <li>Release go / no-go for staging.</li>
+        </ul>
+      </div>
+      <div>
+        <h3>Standards it must check against</h3>
+        <ul>
+          <li>Quality attributes from ISO/IEC 25010: reliability, security, maintainability, performance, portability.</li>
+          <li>Security: OWASP Top 10 and ASVS level chosen per project, threat model (STRIDE) for anything exposed.</li>
+          <li>Twelve-factor app for services; config in environment, never secrets in code.</li>
+          <li>Semantic versioning, Conventional Commits, protected main, PR-only merges.</li>
+          <li>Test pyramid with coverage floor; contract tests on every interface.</li>
+          <li>Supply chain: SBOM, dependency and licence scan, pinned versions, SLSA-style provenance.</li>
+          <li>Observability: structured logs, metrics, traces from day one.</li>
+          <li>Delivery health measured with DORA metrics.</li>
+        </ul>
+        <h3>Must never</h3>
+        <ul>
+          <li>Write feature code itself (it loses the reviewer’s distance).</li>
+          <li>Merge on red CI or skip a required check.</li>
+          <li>Change scope without going back through the BA.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="role-panel" role="tabpanel" id="r-ba" aria-labelledby="tab-ba" hidden>
+    <p class="kv">Persona: senior business analyst, 20 years. The only agent you talk to. Represents you inside the system.</p>
+    <div class="cols">
+      <div>
+        <h3>Owns</h3>
+        <ul>
+          <li>Turning a raw idea into a PRD: problem statement, personas, user stories, acceptance criteria, non-goals, success metrics.</li>
+          <li>A glossary so every agent uses the same words for the same things.</li>
+          <li>Prioritisation (MoSCoW or similar) and the backlog of your feedback.</li>
+          <li>Translating the architect’s plan and reports into plain language.</li>
+          <li>Final acceptance check against the criteria before anything comes to you.</li>
+        </ul>
+      </div>
+      <div>
+        <h3>Decides</h3>
+        <ul>
+          <li>When requirements are clear enough to hand to the architect (Definition of Ready).</li>
+          <li>Which dev questions can be answered from the PRD and which must come to you.</li>
+        </ul>
+        <h3>Must never</h3>
+        <ul>
+          <li>Make technical design decisions.</li>
+          <li>Tell you something is done that the architect hasn’t verified.</li>
+          <li>Ask you more than a few questions at once.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="role-panel" role="tabpanel" id="r-dev" aria-labelledby="tab-dev" hidden>
+    <p class="kv">Persona: senior engineer, one task at a time. Can run on any vendor.</p>
+    <div class="cols">
+      <div>
+        <h3>Owns</h3>
+        <ul>
+          <li>Implementation of exactly one task contract, in its own branch or git worktree.</li>
+          <li>Unit tests and any contract tests for the interfaces it touches.</li>
+          <li>A PR with a summary, linked task ID, test evidence, and any assumptions it made.</li>
+        </ul>
+      </div>
+      <div>
+        <h3>Must never</h3>
+        <ul>
+          <li>Edit files outside the task’s declared paths, or change an interface contract.</li>
+          <li>Guess on ambiguity; it raises a structured question and pauses instead.</li>
+          <li>Push to main or touch deployment config.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="role-panel" role="tabpanel" id="r-qa" aria-labelledby="tab-qa" hidden>
+    <p class="kv">Persona: staff QA and security reviewer. Deliberately on a different vendor than the author of each PR.</p>
+    <div class="cols">
+      <div>
+        <h3>Owns</h3>
+        <ul>
+          <li>Review of each PR against its acceptance criteria, not just “does it compile”.</li>
+          <li>Test design: edge cases, negative paths, end-to-end scenarios from the user stories.</li>
+          <li>Reading CI results, security scan findings and coverage deltas.</li>
+        </ul>
+      </div>
+      <div>
+        <h3>Decides</h3>
+        <ul>
+          <li>Approve or request changes. Its approval is a required check.</li>
+        </ul>
+        <h3>Must never</h3>
+        <ul>
+          <li>Fix the code itself. Fixes go back to the dev so the author learns and the history stays clear.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="role-panel" role="tabpanel" id="r-ops" aria-labelledby="tab-ops" hidden>
+    <p class="kv">Persona: platform engineer. Operates through pipelines, never by hand.</p>
+    <div class="cols">
+      <div>
+        <h3>Owns</h3>
+        <ul>
+          <li>CI/CD pipelines, infrastructure as code, environment configuration.</li>
+          <li>Staging and production deploys, smoke tests, rollback.</li>
+          <li>Secrets handling through a secrets manager; agents never see raw credentials.</li>
+          <li>Publishing finished tools to the registry as MCP servers.</li>
+        </ul>
+      </div>
+      <div>
+        <h3>Must never</h3>
+        <ul>
+          <li>Deploy to production without your recorded approval.</li>
+          <li>Run ad-hoc commands against production; everything goes through the pipeline so it is logged and repeatable.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 5 -->
+<section id="git">
+  <span class="sec-no">5. Branching, merge and release</span>
+  <h2>How parallel branches come back together safely</h2>
+  <figure>
+    <div class="fig">
+<svg viewBox="0 0 980 300" role="img" aria-labelledby="t3">
+  <title id="t3">Trunk-based flow: three feature branches off main, each passes CI and QA before architect merges; tagged release to staging then prod after human approval.</title>
+  <defs><marker id="a3" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0 L10 5 L0 10 z" class="f-mu"/></marker></defs>
+  <line x1="30" y1="150" x2="950" y2="150" class="s-ink" stroke-width="3"/>
+  <text x="30" y="138" font-weight="700" font-size="13">main (protected)</text>
+  <circle cx="90" cy="150" r="7" class="f-card s-ink" stroke-width="2"/>
+  <text x="90" y="178" text-anchor="middle" font-size="11" class="t-mu">contracts</text>
+  <text x="90" y="192" text-anchor="middle" font-size="11" class="t-mu">committed</text>
+
+  <path d="M90 150 C 130 150, 140 60, 190 60 H 430" fill="none" class="s-cl" stroke-width="2.5"/>
+  <text x="200" y="50" font-size="12" class="t-cl" font-weight="600">feat/api · Dev A</text>
+  <path d="M90 150 C 130 150, 140 105, 190 105 H 520" fill="none" class="s-oa" stroke-width="2.5"/>
+  <text x="200" y="97" font-size="12" class="t-oa" font-weight="600">feat/engine · Dev B</text>
+  <path d="M90 150 C 130 150, 140 240, 190 240 H 610" fill="none" class="s-ge" stroke-width="2.5"/>
+  <text x="200" y="232" font-size="12" class="t-ge" font-weight="600">feat/ui · Dev C</text>
+
+  <!-- gates -->
+  <g font-size="10">
+    <rect x="330" y="50" width="54" height="20" class="f-card s-ink"/><text x="357" y="64" text-anchor="middle">CI ✓</text>
+    <rect x="390" y="50" width="54" height="20" class="f-card s-oa"/><text x="417" y="64" text-anchor="middle">QA ✓</text>
+    <rect x="410" y="95" width="54" height="20" class="f-card s-ink"/><text x="437" y="109" text-anchor="middle">CI ✓</text>
+    <rect x="470" y="95" width="54" height="20" class="f-card s-cl"/><text x="497" y="109" text-anchor="middle">QA ✓</text>
+    <rect x="500" y="230" width="54" height="20" class="f-card s-ink"/><text x="527" y="244" text-anchor="middle">CI ✓</text>
+    <rect x="560" y="230" width="54" height="20" class="f-card s-oa"/><text x="587" y="244" text-anchor="middle">QA ✓</text>
+  </g>
+  <path d="M444 60 C 480 60, 480 150, 500 150" fill="none" class="s-cl" stroke-width="2.5" marker-end="url(#a3)"/>
+  <path d="M524 105 C 560 105, 560 150, 580 150" fill="none" class="s-oa" stroke-width="2.5" marker-end="url(#a3)"/>
+  <path d="M614 240 C 650 240, 650 150, 670 150" fill="none" class="s-ge" stroke-width="2.5" marker-end="url(#a3)"/>
+  <circle cx="500" cy="150" r="7" class="f-red"/><circle cx="580" cy="150" r="7" class="f-red"/><circle cx="670" cy="150" r="7" class="f-red"/>
+  <text x="585" y="185" text-anchor="middle" font-size="11" class="t-red">architect merges in dependency order</text>
+
+  <rect x="700" y="136" width="80" height="28" class="f-card s-red" stroke-width="2"/>
+  <text x="740" y="155" text-anchor="middle" font-size="11" font-weight="700">E2E suite</text>
+  <circle cx="810" cy="150" r="9" class="f-card s-ink" stroke-width="2.5"/>
+  <text x="810" y="128" text-anchor="middle" font-size="11" font-weight="700">v1.2.0</text>
+  <path d="M810 159 V 230 H 860" fill="none" class="s-ge" stroke-width="2" marker-end="url(#a3)"/>
+  <text x="866" y="234" font-size="11" class="t-ge" font-weight="600">staging</text>
+  <polygon points="905,262 925,276 905,290 885,276" class="f-card s-red" stroke-width="2"/>
+  <text x="905" y="280" text-anchor="middle" font-size="9" font-weight="700">you</text>
+  <path d="M866 246 C 880 250, 890 255, 895 266" fill="none" class="s-mu" stroke-width="1.2" marker-end="url(#a3)"/>
+  <path d="M925 276 H 950" fill="none" class="s-ge" stroke-width="2" marker-end="url(#a3)"/>
+  <text x="940" y="296" text-anchor="end" font-size="11" class="t-ge" font-weight="600">prod</text>
+</svg>
+    </div>
+    <figcaption><b>Figure 3.</b> Short-lived branches off a protected main. Interface contracts land on main first, so branches build against stable seams. Each PR needs green CI and a QA approval from a different vendor than its author.</figcaption>
+  </figure>
+  <p>Git is the shared memory between vendors. Claude, Gemini and Codex agents can’t read each other’s context windows, but they can all read the same repository, the same ADRs and the same AGENTS.md. That makes the repo, not the chat, the source of truth for the whole firm.</p>
+</section>
+
+<!-- 6 -->
+<section id="models">
+  <span class="sec-no">6. Model routing</span>
+  <h2>Your insight is right: expensive brains plan, cheaper hands build</h2>
+  <p>This split has a research basis. The “LLMs as tool makers” work had a strong model write reusable tools once and a lightweight model apply them, and matched the strong model’s accuracy at much lower cost. Anthropic’s own research system uses a heavier lead agent directing lighter subagents. A couple of your model names need updating to the current lineup, so here is the mapping I’d use today.</p>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>Seat</th><th>Primary</th><th>Cross-vendor alternative</th><th>Why this tier</th></tr></thead>
+      <tbody>
+        <tr><td><b>Business analyst</b></td><td><span class="vendor v-cl">Claude Opus 5.5</span> high effort</td><td><span class="vendor v-oa">GPT-6 Astra</span></td><td>Ambiguity and judgement about people. Low token volume, so the premium price barely matters.</td></tr>
+        <tr><td><b>Architect</b></td><td><span class="vendor v-cl">Claude Opus 5.5</span> max effort; <span class="vendor v-cl">Fable 5.1</span> for the hardest designs</td><td><span class="vendor v-ge">Gemini 3 Deep Think</span> as a design second opinion</td><td>Every downstream token depends on its decisions. The place to spend the most per call.</td></tr>
+        <tr><td><b>Developer, complex task</b></td><td><span class="vendor v-cl">Claude Sonnet 5</span></td><td><span class="vendor v-oa">GPT-6 Astra</span> via Codex; <span class="vendor v-ge">Gemini 3.x</span> via Antigravity</td><td>Strong coding at a mid price. Mix vendors across tasks to get diverse strengths.</td></tr>
+        <tr><td><b>Developer, routine task</b></td><td><span class="vendor v-cl">Claude Haiku 4.5</span></td><td><span class="vendor v-ge">Gemini 3.x Flash</span>; <span class="vendor v-oa">GPT-5.6 Sol</span></td><td>Boilerplate, docs, test scaffolding, migrations with a clear pattern.</td></tr>
+        <tr><td><b>QA / reviewer</b></td><td>Any vendor that did <em>not</em> write the PR</td><td>Rotate</td><td>Cross-vendor review catches blind spots a model shares with itself.</td></tr>
+        <tr><td><b>DevOps</b></td><td><span class="vendor v-cl">Claude Sonnet 5</span> or <span class="vendor v-cl">Haiku 4.5</span></td><td><span class="vendor v-ge">Gemini 3.x Flash</span></td><td>The risk here is permissions, not intelligence. Deterministic pipelines do the actual deploy.</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="note">Keep the model as configuration, never hard-coded. Vendors ship and retire models every few months; for example OpenAI is retiring GPT-5.5 from ChatGPT and Codex in October 2026. A routing table you can edit in one file will outlive any specific pick. And budget for it: multi-agent runs used roughly fifteen times the tokens of a normal chat in Anthropic’s measurements, so put a hard token budget on every task.</p>
+</section>
+
+<!-- 7 -->
+<section id="crossplatform">
+  <span class="sec-no">7. Cross-platform communication</span>
+  <h2>How a Claude agent, a Gemini agent and a Codex agent work as one team</h2>
+  <p>Two open protocols now do most of the work, and both sit under the Linux Foundation’s Agentic AI Foundation. <b>A2A</b> is agent-to-agent: each agent publishes an Agent Card describing its skills, and work moves as tasks with a fixed lifecycle (submitted, working, input required, completed, failed, and so on). <b>MCP</b> is agent-to-tool: how an agent reaches Git, CI, databases, or a tool you built last month. The rule of thumb: A2A routes the task to the right specialist, MCP gives that specialist its tools.</p>
+  <div class="stack">
+    <div class="layer"><div class="ln">Conversation<small>you ⇄ BA</small></div><div class="lc">A single chat. Could be Claude.ai, a Slack bot, or your own web UI over AG-UI.</div></div>
+    <div class="layer"><div class="ln">Coordination<small>agent ⇄ agent</small></div><div class="lc">A2A tasks between BA, architect, devs, QA and DevOps. The “input required” state is exactly your dev-asks-architect loop. Signed Agent Cards arrived in A2A 1.0 for verifying who you’re talking to.</div></div>
+    <div class="layer"><div class="ln">Instructions<small>portable across vendors</small></div><div class="lc">AGENTS.md for repo rules and SKILL.md files for reusable procedures. Claude Code, Codex and Antigravity all read these formats, so one set of standards governs every vendor.</div></div>
+    <div class="layer"><div class="ln">Tools<small>agent ⇄ system</small></div><div class="lc">MCP servers for Git, CI, issue tracker, cloud, secrets proxy, and every tool the foundry has built before.</div></div>
+    <div class="layer"><div class="ln">Shared state<small>truth</small></div><div class="lc">The Git repo (code, ADRs, PRD, task files) plus an artifact store for builds and reports.</div></div>
+    <div class="layer"><div class="ln">Observability<small>cost and audit</small></div><div class="lc">OpenTelemetry traces with one trace ID per user request, token cost per agent, and a full log of decisions for replay.</div></div>
+  </div>
+
+  <h3>Three ways to wire the vendors in</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>Approach</th><th>How it works</th><th>Good for</th><th>Watch out for</th></tr></thead>
+      <tbody>
+        <tr><td><b>A. Managed agents behind A2A</b></td><td>Wrap each vendor’s hosted agent (Claude Agent SDK, Gemini Managed Agents / Antigravity agent, OpenAI Agents API) in a thin A2A server with its own Agent Card.</td><td>The clean, long-term architecture. Each seat is swappable.</td><td>Most engineering up front. Google says its native A2A integration for managed agents is still “coming soon”.</td></tr>
+        <tr><td><b>B. CLI workers in terminals</b></td><td>The architect runs as Claude Code and spawns Codex CLI and Antigravity CLI workers in tmux panes, each in its own worktree (the oh-my-claudecode approach).</td><td>Fastest route to a working prototype this week.</td><td>Brittle parsing of terminal output; harder to audit and scale.</td></tr>
+        <tr><td><b>C. Framework orchestrator</b></td><td>Microsoft Agent Framework 1.0 or LangGraph hosts the workflow graph, calls every vendor as a model provider, and speaks A2A/MCP outward.</td><td>Durable state, checkpoints, human-in-the-loop steps built in.</td><td>You call raw models, not each vendor’s tuned coding harness, unless you wrap those too.</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>My suggestion: prototype with B, design toward A, and borrow C’s checkpointing ideas for the architect’s state.</p>
+
+  <h3>What a task contract looks like on the wire</h3>
+  <p>The single biggest lever, according to Anthropic’s research-system write-up, is how precisely the lead agent delegates: a clear objective, output format, tools and boundaries. Here is the payload the architect sends a dev inside an A2A message:</p>
+<pre class="code">{
+  "task_id": "T-014",
+  "title": "Rate-limit middleware for /v1/convert",
+  "objective": "Reject >60 req/min per API key with HTTP 429",
+  "context_refs": ["docs/adr/0007-rate-limiting.md", "api/openapi.yaml#/paths/~1v1~1convert"],
+  "allowed_paths": ["src/middleware/**", "tests/middleware/**"],
+  "interfaces_frozen": ["api/openapi.yaml"],
+  "acceptance": [
+    "Given 61 requests in 60s with one key, the 61st returns 429 with Retry-After",
+    "Given two keys, limits are independent"
+  ],
+  "definition_of_done": ["unit tests pass", "coverage >= 85% on changed files", "no new high SAST findings"],
+  "branch": "feat/T-014-rate-limit",
+  "budget": { "max_tokens": 400000, "max_minutes": 45 },
+  "assignee": { "vendor": "openai", "harness": "codex", "model": "from-routing-table" },
+  "escalation": "ask architect via input-required; do not guess"
+}</pre>
+</section>
+
+<!-- 8 -->
+<section id="landscape">
+  <span class="sec-no">8. Who is already building this</span>
+  <h2>Repos, companies and research worth studying</h2>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>Project</th><th>Type</th><th>What to take from it</th></tr></thead>
+      <tbody>
+        <tr><td><b><a href="https://github.com/foundationagents/metagpt">MetaGPT</a></b> / MGX</td><td><span class="vendor v-nu">Open source + product</span></td><td>Closest match to your idea: one-line requirement in, PRD, design, tasks and repo out, via product manager, architect and engineer roles following SOPs. Supports a different model per role. Their product MGX sells it as an “AI dev team”.</td></tr>
+        <tr><td><b><a href="https://github.com/openbmb/ChatDev">ChatDev 2.0</a></b></td><td><span class="vendor v-nu">Open source</span></td><td>Started as a virtual software company (CEO, CTO, programmer, tester); now a zero-code platform for configuring your own multi-agent workflows. Their MacNet research on DAG-shaped agent networks is useful for task graphs.</td></tr>
+        <tr><td><b>Claude Code Agent Teams</b></td><td><span class="vendor v-cl">Anthropic</span></td><td>A lead session coordinates teammates that each have their own context and message each other through a shared task list; subagents can be isolated in git worktrees. A ready-made architect-plus-devs substrate on the Claude side.</td></tr>
+        <tr><td><b>Google Antigravity</b></td><td><span class="vendor v-ge">Google</span></td><td>Agent-first IDE with a Manager view for parallel agents; Gemini CLI has been folded into Antigravity CLI; Managed Agents in the Gemini API define agents with AGENTS.md and SKILL.md files and run them in hosted sandboxes.</td></tr>
+        <tr><td><b>OpenAI Codex + Agents API</b></td><td><span class="vendor v-oa">OpenAI</span></td><td>The Codex harness is now offered as a managed Agents API (public beta since 10 Sep 2026). Note that the Codex MCP server was removed in September, so orchestration now goes through the SDK/API rather than MCP.</td></tr>
+        <tr><td><b><a href="https://github.com/a2aproject/A2A">A2A protocol</a></b></td><td><span class="vendor v-nu">Standard</span></td><td>Created by Google, now governed at the Linux Foundation with a steering committee including AWS, Microsoft, IBM, Salesforce, SAP and others. 1.0 added signed Agent Cards.</td></tr>
+        <tr><td><b>Microsoft Agent Framework 1.0</b></td><td><span class="vendor v-nu">Open source</span></td><td>The merger of AutoGen and Semantic Kernel, GA in April 2026: graph workflows (sequential, concurrent, handoff, group chat), checkpointing, human-in-the-loop, and native A2A and MCP across providers including Anthropic and OpenAI.</td></tr>
+        <tr><td><b><a href="https://github.com/Yeachan-Heo/oh-my-claude-sisyphus">oh-my-claudecode</a></b></td><td><span class="vendor v-nu">Community</span></td><td>Working example of approach B: Claude Code spawning real Codex and Gemini CLI workers in tmux panes, with a mode where Claude synthesises their outputs.</td></tr>
+        <tr><td><b><a href="https://github.com/pappdavid/agent-cli-mcp-rust">agent-cli-mcp-rust</a></b>, <b><a href="https://github.com/nexus-substrate/nexus-agents">nexus-agents</a></b></td><td><span class="vendor v-nu">Community</span></td><td>MCP servers that let one orchestrator drive Claude, Codex, Gemini, Copilot and Jules CLIs through one interface, with directory isolation and secret redaction. Good reference for the safety layer.</td></tr>
+        <tr><td><b>ComposioHQ agent-orchestrator</b>, <b>pilotfish</b></td><td><span class="vendor v-nu">Community</span></td><td>Orchestrators that plan, spawn parallel coding agents and handle CI fixes and merge conflicts; pilotfish specifically has a frontier model plan and cheaper models execute, with a verification step.</td></tr>
+        <tr><td><b>Why do multi-agent LLM systems fail? (MAST)</b></td><td><span class="vendor v-nu">Research, UC Berkeley</span></td><td>14 failure modes in three groups: specification problems, inter-agent misalignment, and weak verification. Use it as a checklist for your design reviews.</td></tr>
+        <tr><td><b>LLMs as Tool Makers (LATM)</b></td><td><span class="vendor v-nu">Research, ICLR 2024</span></td><td>The academic root of “agents that build tools”: a strong model writes reusable tools, a light model uses them, and tools are cached for future requests.</td></tr>
+        <tr><td><b>Anthropic multi-agent research system</b></td><td><span class="vendor v-cl">Engineering report</span></td><td>Orchestrator-worker design, delegation prompts, effort scaling, and the honest caveat that coding is less parallel than research.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- 9 -->
+<section id="risks">
+  <span class="sec-no">9. Failure modes and guards</span>
+  <h2>Where teams like this break, and what stops it</h2>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>Failure</th><th>What it looks like</th><th>Guard in this design</th></tr></thead>
+      <tbody>
+        <tr><td><b>Vague spec</b></td><td>Devs build something plausible but wrong.</td><td>PRD with testable acceptance criteria; task contracts with frozen interfaces; plan approval by you.</td></tr>
+        <tr><td><b>Role drift</b></td><td>Architect starts coding, dev redesigns the API.</td><td>Written charters; path allow-lists enforced by the harness, not just the prompt.</td></tr>
+        <tr><td><b>Silent assumptions</b></td><td>Dev guesses instead of asking.</td><td>“Ask, don’t guess” rule; assumptions must be listed in every PR.</td></tr>
+        <tr><td><b>Rubber-stamp verification</b></td><td>Reviewer confirms it compiles, not that it meets the goal.</td><td>Independent cross-vendor QA; CI as a required check; BA re-checks against acceptance criteria.</td></tr>
+        <tr><td><b>Merge collisions</b></td><td>Parallel branches conflict at the end.</td><td>Contracts first, tasks cut along interfaces, merge in dependency order.</td></tr>
+        <tr><td><b>Runaway cost or loops</b></td><td>Agents keep revising forever.</td><td>Per-task token and time budgets; max review rounds; escalation to the architect then you.</td></tr>
+        <tr><td><b>Prompt injection via tools</b></td><td>A web page or dependency tells an agent to leak secrets.</td><td>Secrets only via a proxy; outbound network allow-lists; tool output treated as data, never instructions.</td></tr>
+        <tr><td><b>Unsafe deploy</b></td><td>Agent pushes broken code to production.</td><td>Pipeline-only deploys, staging first, human approval for prod, one-command rollback.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- 10 -->
+<section id="roadmap">
+  <span class="sec-no">10. Build plan</span>
+  <h2>A phased way to get there</h2>
+  <ol class="phases">
+    <li><b>Single-vendor walking skeleton (1–2 weeks).</b> Claude Code only: BA and architect as custom agents, two dev teammates in worktrees, GitHub Actions as CI. Build one small real tool end to end. Measure tokens, time and how often you had to intervene.</li>
+    <li><b>Contracts and charters (week 3).</b> Freeze the PRD template, ADR template, task-contract JSON and the five role charters from section 4. Add the plan-approval gate and the QA agent.</li>
+    <li><b>Second vendor (weeks 4–5).</b> Add Codex as a dev and as the reviewer of Claude-written PRs, first via CLI workers, then behind a small A2A adapter. Compare quality and cost per task.</li>
+    <li><b>Third vendor and DevOps (weeks 6–7).</b> Add a Gemini/Antigravity seat, the DevOps agent with staging deploys, and the trace and cost dashboard.</li>
+    <li><b>Tool registry (week 8 onward).</b> Every approved tool is published as an MCP server with a card. The architect must search the registry before designing anything new. This is where the foundry starts compounding.</li>
+  </ol>
+</section>
+
+<!-- 11 -->
+<section id="questions">
+  <span class="sec-no">11. Open questions for our next round</span>
+  <h2>Things to decide together</h2>
+  <p><b>What kind of tools?</b> Internal CLIs, MCP servers, web apps and data pipelines need very different DevOps seats and test strategies. Pinning the first category down will shape everything else.</p>
+  <p><b>Where does it run?</b> Your laptop, a single cloud VM, or each vendor’s hosted sandbox. This decides between approaches A, B and C above.</p>
+  <p><b>How much autonomy between checkpoints?</b> Two human gates is my default. Some teams add a third after the first merge on main.</p>
+  <p><b>Budget per tool.</b> A ceiling in dollars or tokens per project lets the architect trade model tiers against each other instead of always picking the most expensive.</p>
+  <p><b>Should agents improve their own charters?</b> After each project, a retrospective agent could propose edits to AGENTS.md and the role prompts, with you approving. Powerful, but it needs careful review.</p>
+</section>
+
+<section id="sources">
+  <span class="sec-no">Sources</span>
+  <h2>Where this came from</h2>
+  <ul class="sources">
+    <li><a href="https://a2a-protocol.org/latest/">A2A Protocol documentation</a> and <a href="https://github.com/a2aproject/A2A">a2aproject/A2A on GitHub</a></li>
+    <li><a href="https://www.linuxfoundation.org/press/linux-foundation-launches-the-agent2agent-protocol-project-to-enable-secure-intelligent-communication-between-ai-agents">Linux Foundation: launch of the A2A project</a></li>
+    <li><a href="https://arxiv.org/pdf/2507.10644">A unified narrative of the web of agents (A2A, ACP merger, AAIF, A2A 1.0)</a></li>
+    <li><a href="https://arxiv.org/pdf/2606.03755">LAP paper: A2A task lifecycle and A2A vs MCP</a></li>
+    <li><a href="https://github.com/foundationagents/metagpt">MetaGPT</a> · <a href="https://github.com/openbmb/ChatDev">ChatDev</a></li>
+    <li><a href="https://www.tembo.io/blog/claude-code-multi-agent-orchestration">Tembo: Claude Code multi-agent orchestration guide</a> · <a href="https://addyosmani.com/blog/code-agent-orchestra/">Addy Osmani: The Code Agent Orchestra</a></li>
+    <li><a href="https://ai.google.dev/gemini-api/docs/agents">Gemini API managed agents</a> · <a href="https://cloud.google.com/blog/topics/developers-practitioners/io26-news-for-agent-developers-on-google-cloud">Google Cloud I/O ’26 agent news</a> · <a href="https://developers.googleblog.com/an-important-update-transitioning-gemini-cli-to-antigravity-cli/">Gemini CLI to Antigravity CLI</a></li>
+    <li><a href="https://www.contextstudios.ai/blog/openai-product-day-sept-10-agents-api-gpt-live-1-chatgpt-for-financial">OpenAI Agents API launch coverage</a> · <a href="https://developers.openai.com/blog/openai-for-developers-2025">OpenAI for Developers 2025</a> · <a href="https://releasebot.io/updates/openai">OpenAI release notes, Sep 2026</a></li>
+    <li><a href="https://atlan.com/know/ai-agent/microsoft/agent-framework/">Microsoft Agent Framework overview</a></li>
+    <li><a href="https://arxiv.org/html/2503.13657v3">Why Do Multi-Agent LLM Systems Fail? (MAST)</a></li>
+    <li><a href="https://mlanthology.org/iclr/2024/cai2024iclr-large/">Large Language Models as Tool Makers (ICLR 2024)</a></li>
+    <li><a href="https://www.anthropic.com/engineering/multi-agent-research-system">Anthropic: How we built our multi-agent research system</a></li>
+    <li><a href="https://github.com/Yeachan-Heo/oh-my-claude-sisyphus">oh-my-claudecode</a> · <a href="https://github.com/pappdavid/agent-cli-mcp-rust">agent-cli-mcp-rust</a> · <a href="https://github.com/nexus-substrate/nexus-agents">nexus-agents</a> · <a href="https://github.com/ahoo-wang/awesome-codex-cli">awesome-codex-cli</a> · <a href="https://github.com/jqueryscript/awesome-claude-code">awesome-claude-code</a></li>
+  </ul>
+  <footer>Model names and product details reflect what was published as of 23 September 2026 and change often. Check each vendor’s current model list before wiring the routing table.</footer>
+</section>
+
+</div></div>
+<script>
+(function(){
+  var tabs = Array.prototype.slice.call(document.querySelectorAll('.roles-nav [role="tab"]'));
+  function select(t){
+    tabs.forEach(function(x){
+      var on = x === t;
+      x.setAttribute('aria-selected', on ? 'true' : 'false');
+      x.tabIndex = on ? 0 : -1;
+      document.getElementById(x.getAttribute('aria-controls')).hidden = !on;
+    });
+  }
+  tabs.forEach(function(t, i){
+    t.tabIndex = i === 0 ? 0 : -1;
+    t.addEventListener('click', function(){ select(t); });
+    t.addEventListener('keydown', function(e){
+      var d = e.key === 'ArrowRight' ? 1 : e.key === 'ArrowLeft' ? -1 : 0;
+      if(!d) return;
+      var n = tabs[(i + d + tabs.length) % tabs.length];
+      select(n); n.focus(); e.preventDefault();
+    });
+  });
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,14 @@
+# Bridge server runtime dependencies.
+# Pinned loosely; tighten once the skeleton stabilises.
+
+pydantic>=2.7,<3
+fastapi>=0.110
+uvicorn[standard]>=0.29
+mcp>=2,<3
+
+# Optional: only needed for the Gemini API worker (GeminiAdapter).
+# google-genai>=0.3
+
+# Dev/test
+pytest>=8.0
+httpx>=0.27          # FastAPI TestClient
