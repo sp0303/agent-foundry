@@ -35,6 +35,11 @@ def _verify(secret: str, body: bytes, signature: str | None) -> bool:
     return hmac.compare_digest(expected, signature)
 
 
+@app.get("/health")
+def health() -> dict[str, str]:
+    return {"status": "ok"}
+
+
 @app.post("/webhook/github")
 async def github_webhook(
     request: Request,
