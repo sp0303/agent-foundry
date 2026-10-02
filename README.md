@@ -1,46 +1,102 @@
 # Agent Foundry
 
-A multi-vendor team of AI agents that builds tools. You talk to one agent (the business analyst); it hands work to an architect, who runs developer, QA and DevOps agents across Claude, Gemini (Antigravity) and OpenAI (Codex). A small bridge server automates the repetitive loop between them, using Git as the shared workspace.
+**A team of eight AI agents, across two vendors, that turns an idea into a
+reviewed, tested pull request.** You talk to one agent. The plan, the design, the
+code, the review and the release are handled by specialists — each with a written
+charter, hard boundaries, and its own tools. You keep the two decisions that
+matter: approve the plan, and merge the result.
 
-## Status
+## Meet the team
 
-The team is built and in use (first project: sarey.tech). The `bridge/` server is
-a tested walking skeleton, not yet the live orchestrator.
+| Name | Role | Runs on | What they own |
+|---|---|---|---|
+| **Jacobin** | Business analyst | Claude | Your idea → scope, user stories, Given/When/Then acceptance criteria |
+| **Arjun** | Architect | Claude | Stack, ADRs, interface contracts, one task contract per slice |
+| **Sparsha** | UX / UI designer | Claude | Flows, screens and states, visual system, accessibility (WCAG 2.2 AA) |
+| **Vaka** | Developer | Gemini, via Antigravity CLI | The code — one task at a time, with tests |
+| **Tara** | QA reviewer | Claude | Review against acceptance criteria, edge cases, coverage |
+| **Kara** | Security engineer | Claude | Threat model, OWASP/ASVS, secrets, supply chain |
+| **Ira** | Skill curator | Claude | The agents, skills and rules themselves |
+| **Vihaan** | DevOps | Claude | CI, release checklist, deploys, rollback |
 
-## Where things live
+## How a build runs
 
-**The foundry team layer is owned by the template repo,
-[sp0303/agent-foundry-template](https://github.com/sp0303/agent-foundry-template).**
-It is the single source of truth for `AGENTS.md`, `.claude/foundry.md`,
-`.claude/agents/`, `.claude/commands/`, `.agents/`, `agents/`, and the shared docs
-(`docs/architecture.md`, `docs/operating-guide.md`, `docs/release-checklist.md`).
-This repo holds synced copies — change them in the template, then run
-`bash scripts/sync-foundry.sh` here. `.foundry-version` records which template
-commit this repo is on.
+```
+You ─ idea ─▶ Jacobin (scope) ─▶ [Gate 1: you approve the plan]
+          ─▶ Arjun (architecture + task contracts) ─▶ Sparsha (design, if there's a UI)
+          ─▶ Vaka builds one small slice ─▶ run it and look
+          ─▶ Tara + Kara review ─▶ pull request ─▶ [Gate 2: you merge]
+          ─▶ Vihaan (release checklist) ─▶ publish, with your OK
+```
 
-This repo owns:
+One command starts it: `/build-tool <your idea>`.
+
+## The design choices that make it work
+
+- **Different vendor writes vs. reviews.** Vaka (Gemini) writes the code; Tara
+  and Kara (Claude) review it. A model never grades its own homework.
+- **Boundaries are enforced by tools, not promises.** Each Claude agent gets only
+  the tools its job needs: Tara and Kara have no file-writing tools, so they can't
+  "just fix it"; Arjun can't edit or run code. Vaka is fenced by the task
+  contract's allowed paths, its own branch, and review.
+- **Task contracts, not vibes.** Every slice is a written contract — objective,
+  allowed paths, frozen interfaces, acceptance criteria, Definition of Done. If
+  anything is ambiguous, the developer stops and asks instead of guessing.
+- **The orchestrator never writes product code.** Every change, however small,
+  goes through the developer and review.
+- **Git is the shared workspace.** Agents from different vendors don't talk to
+  each other directly; they meet in branches and pull requests.
+- **Humans hold two gates.** Approve the plan before any code; merge before
+  anything ships.
+
+## What's real today
+
+- The full loop has run end to end: Gemini wrote the code, Claude reviewed it, the
+  tests passed, and it landed as a pull request.
+- All eight roles are defined; seven run as tool-scoped agents (the business
+  analyst is played by the main session).
+- First real project: a product landing page, built through this pipeline with
+  design, QA and security review.
+- The process improves from real use. Lessons from that first project became
+  rules: the orchestrator never writes product code, design specs must match the
+  code, every UI is previewed before review, and releases go through a DevOps
+  checklist.
+
+## Use it for your own project
+
+The team lives in a template:
+[agent-foundry-template](https://github.com/sp0303/agent-foundry-template).
+
+```
+gh repo create <owner>/<name> --template sp0303/agent-foundry-template --private --clone
+```
+
+Open the new folder in Claude Code, fill in `CLAUDE.md`, and run
+`/build-tool <your idea>`. Projects stay current with
+`bash scripts/sync-foundry.sh`.
+
+You'll need [Claude Code](https://claude.com/claude-code), the Antigravity CLI
+(`agy`), and the GitHub CLI (`gh`).
+
+## What's in this repo
+
+This repo is the workshop: research, design history, and the bridge server. The
+team itself is owned by the template and synced here.
 
 | Path | What it is |
 |---|---|
-| `bridge/` | The bridge server (always-on orchestrator, walking skeleton + tests). |
-| `docs/research.html` | Research and concept sheet: topology, lifecycle, roles, model routing, landscape, risks, roadmap. Open in a browser. |
-| `docs/bridge-design.md` | Design of the bridge server that connects the vendors. |
-| `docs/decisions/` | Architecture decision records (ADRs) for this repo. |
-| `CLAUDE.md` | This repo's own session notes (imports the shared foundry rules). |
-
-## Core ideas
-
-1. **One front door.** You only talk to the BA agent.
-2. **Architect is the hub.** All engineering traffic goes through it; it decides, it does not write feature code.
-3. **Deterministic loop, LLM judgement.** Plain code runs "push → CI → QA → merge". Models are called only for planning, answering questions, review, merge decisions and reports.
-4. **Git is the source of truth** shared by every vendor.
-5. **Two human gates:** approve the plan before code, verify the result before production.
-6. **Tool registry.** Every finished tool is published as an MCP server so later projects reuse it.
+| `bridge/` | The bridge server — a future always-on orchestrator (task state machine, GitHub webhooks, per-vendor workers). Walking skeleton with tests. |
+| `docs/architecture.md` | The full design: team, boundaries, lifecycle, security posture, risks. |
+| `docs/operating-guide.md` | Step-by-step commands for running a build. |
+| `docs/release-checklist.md` | What DevOps checks before anything is published. |
+| `docs/research.html` | The original research and concept sheet. Open in a browser. |
+| `docs/bridge-design.md`, `docs/decisions/` | Bridge server design and decision records. |
+| `.claude/agents/`, `.claude/commands/`, `.agents/`, `agents/`, `AGENTS.md`, `.claude/foundry.md` | The team — synced from the template (see `.foundry-version`). |
 
 ## Roadmap
 
-1. Single-vendor walking skeleton on Claude Code.
-2. Freeze templates: PRD, ADR, task contract, role charters.
-3. Add Codex as a developer and cross-vendor reviewer.
-4. Add Antigravity/Gemini and the DevOps agent with staging deploys.
-5. Tool registry.
+1. Business analyst as a dedicated agent.
+2. Bridge server in production: always-on, webhook-driven, parallel tasks, budgets.
+3. Automated CI on every pull request.
+4. A tool registry: every finished tool published as an MCP server so later
+   projects can reuse it.

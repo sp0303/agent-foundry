@@ -14,14 +14,18 @@ on **Antigravity (agy / Gemini)**. Git is the shared workspace. See
 
 | Role | Runtime | How to invoke | Status |
 |---|---|---|---|
-| Business analyst | Claude | played live by the main session | charter only |
-| Architect | Claude subagent | "use the architect subagent…" | built |
-| UX / UI designer | Claude subagent | "use the ux-ui-designer subagent…" | built |
-| Developer | **Antigravity (agy)** | `agy -p "<task>"` (see recipe) | built |
-| QA reviewer | Claude subagent | "use the qa-reviewer subagent…" | built |
-| Security engineer | Claude subagent | "use the security-engineer subagent…" | built |
-| Skill curator | Claude subagent | "use the skill-curator subagent…" | built |
-| DevOps | Claude subagent | "use the devops subagent…" | built |
+| **Jacobin** — Business analyst | Claude | played live by the main session | charter only |
+| **Arjun** — Architect | Claude subagent | "use the architect subagent…" | built |
+| **Sparsha** — UX / UI designer | Claude subagent | "use the ux-ui-designer subagent…" | built |
+| **Vaka** — Developer | **Antigravity (agy)** | `agy -p "<task>"` (see recipe) | built |
+| **Tara** — QA reviewer | Claude subagent | "use the qa-reviewer subagent…" | built |
+| **Kara** — Security engineer | Claude subagent | "use the security-engineer subagent…" | built |
+| **Ira** — Skill curator | Claude subagent | "use the skill-curator subagent…" | built |
+| **Vihaan** — DevOps | Claude subagent | "use the devops subagent…" | built |
+
+**Call them by name or role** — "Arjun, plan this", "have Tara and Kara review
+it". The names are the team's identity; the role ids (`architect`,
+`qa-reviewer`, …) are what Claude uses to invoke each subagent, so either works.
 
 Claude subagents in `.claude/agents/` load automatically — just ask the main
 session to delegate to them by name. Run the whole pipeline with
