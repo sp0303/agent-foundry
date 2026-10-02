@@ -20,7 +20,7 @@ thinking/reviewing roles run on **Claude**; the code-writing role runs on
 | QA reviewer | Claude subagent | "use the qa-reviewer subagent…" | built |
 | Security engineer | Claude subagent | "use the security-engineer subagent…" | built |
 | Skill curator | Claude subagent | "use the skill-curator subagent…" | built |
-| DevOps | Claude | (design only) | charter only |
+| DevOps | Claude subagent | "use the devops subagent…" | built |
 
 Claude subagents in `.claude/agents/` load automatically — no slash command
 needed; just ask the main session to delegate to them by name.
@@ -30,6 +30,21 @@ needed; just ask the main session to delegate to them by name.
 **The reviewer must be a different vendor than the author.** The developer is
 Gemini (agy), so **QA and Security stay on Claude.** Never let the same vendor
 write and review the same code.
+
+## Orchestrator rules
+
+- **The orchestrator never writes product code** — not even a one-line fix. Every
+  product change goes through a task contract to the developer (agy) and then
+  review. The orchestrator writes only contracts, PR text, and files owned by a
+  subagent it is invoking.
+- **Specs follow the code.** If a change alters the design, the `ux-ui-designer`
+  updates `design/` in the same slice; QA fails the review if specs are stale.
+- **Look before review.** Run anything with a UI or server via the browser
+  preview (`.claude/launch.json`, see the operating guide) and check it before
+  handing it to QA.
+- **Release through DevOps.** Nothing is published until the `devops` subagent has
+  run [docs/release-checklist.md](docs/release-checklist.md), Security has signed
+  off, and the human has approved.
 
 ## Running a task (direct orchestration)
 
@@ -43,8 +58,8 @@ The main Claude session is the orchestrator. For one task:
    agy -p "<contract, written out as a prompt>" --dangerously-skip-permissions --output-format json --model gemini-3.1-pro-high
    ```
    (On Windows cmd/PowerShell, avoid inner double-quotes in the prompt.)
-4. Review: delegate to the `qa-reviewer` and `security-engineer` Claude subagents;
-   run the tests.
+4. Preview it (UI/server), then review: delegate to the `qa-reviewer` and
+   `security-engineer` Claude subagents; run the tests.
 5. Commit only the task's files, push the branch, open a PR linked to the task ID.
 6. Merge decision (architect) → human verifies → merge.
 

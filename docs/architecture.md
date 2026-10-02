@@ -26,7 +26,7 @@ approve the plan, verify the result.
 | 5 | QA reviewer | Claude subagent | yes |
 | 6 | Security engineer | Claude subagent | yes |
 | 7 | Skill curator | Claude subagent | yes |
-| 8 | DevOps | Claude | charter only |
+| 8 | DevOps | Claude subagent | yes |
 
 Plus two non-agent players: the **human sponsor** (two approval gates) and the
 **orchestrator** (currently the live Claude session; the `bridge/` server is the
@@ -105,8 +105,12 @@ not yet automated); no CI wired up, so "green CI" is currently manual.
 - Proven: build→review→test→push loop; cross-vendor review; Claude-side tool
   scoping; `agy` headless connection + JSON contract.
 - Written, not functional headless: Antigravity `.agents/` skills.
-- Planned: BA and DevOps subagents; bridge in production; MCP tool registry;
-  automated CI; budget enforcement.
+- Built from field lessons (first real project, sarey.tech): orchestrator
+  never writes product code; designer keeps `design/` current and QA fails stale
+  specs; a preview ("run it and look") step before review; a DevOps subagent and
+  [release-checklist.md](release-checklist.md) for publishing.
+- Planned: BA subagent; bridge in production; MCP tool registry; automated CI;
+  budget enforcement.
 
 ## 9. Top risks / where it breaks
 

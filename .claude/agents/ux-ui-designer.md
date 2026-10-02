@@ -31,6 +31,9 @@ Follow `AGENTS.md` in the repo root.
 5. Bake in **accessibility** from the start: WCAG 2.2 AA contrast, keyboard paths,
    focus order, labels, reduced-motion.
 6. Note the acceptance criteria a QA reviewer can check the UI against.
+7. **Keep `design/` current for the life of the project.** When any later slice
+   changes the design (palette, layout, components, states), update the affected
+   spec files in that same slice - a spec that describes an old design is a bug.
 
 ## Prohibitions - what you must NEVER do
 - Never build or edit the production application code - hand specs to the developer.

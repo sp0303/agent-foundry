@@ -33,7 +33,11 @@ Follow `AGENTS.md` in the repo root.
    `interfaces_frozen` file changed, no secrets/keys in the diff.
 5. Run the existing test suite locally with `Bash` to confirm - but never modify
    the code to make it pass.
-6. Give a clear verdict with specific, file:line, actionable findings.
+6. **Check specs and docs still match the code.** If the change altered the
+   design (colours, layout, states, copy structure) or behaviour, confirm
+   `design/` and `docs/` were updated in the same slice. Stale specs are a
+   request-changes finding.
+7. Give a clear verdict with specific, file:line, actionable findings.
 
 ## Prohibitions - what you must NEVER do
 - Never fix the code yourself - every fix goes back to the developer with a clear

@@ -62,6 +62,27 @@ Write tests. Do not run git. If anything is ambiguous, print a line starting wit
 BRIDGE_QUESTION: and stop.
 ```
 
+### 3b. Preview — run it and look at it
+For anything with a UI or a server, check it in the browser preview before review.
+If the project has no `.claude/launch.json`, create one (the `devops` subagent owns
+it). Example for a Vite app:
+```json
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "dev",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "dev"],
+      "port": 5173
+    }
+  ]
+}
+```
+Then ask Claude to start the `dev` preview, load the changed screens, take a
+screenshot, and read the browser console. Check light/dark and a phone-width
+viewport if the UI supports them. Anything broken goes back to the developer.
+
 ### 4. Review (Claude — different vendor than the author)
 Delegate to the Claude subagents and run tests yourself:
 - `qa-reviewer` — acceptance criteria, edge/negative/e2e, coverage, guardrails.
@@ -87,6 +108,18 @@ With `gh`: `gh pr create --fill`. Without: open the printed URL.
 ### 6. Merge + gates
 Architect makes the merge decision on a green, QA+Security-approved PR. The human
 verifies (gate 2) before anything is published.
+
+### 7. Release and publish
+The `devops` subagent runs [release-checklist.md](release-checklist.md) on a clean
+checkout of `main` (dependency audit, CSP/security headers, build, smoke test,
+rollback). Security signs off; the human approves the publish; DevOps posts
+release notes.
+
+## Orchestrator rule
+
+The main session **never writes product code**. If a fix is needed — however
+small — write a task contract and send it to the developer. Specs in `design/` are
+updated by the designer in the same slice as any design change.
 
 ## agy quick reference
 
