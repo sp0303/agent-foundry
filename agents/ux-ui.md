@@ -1,6 +1,6 @@
-# UX / UI designer charter
+# Sparsha — UX / UI designer charter
 
-Persona: product designer, 15+ years across UX research, interaction and visual design.
+Name: **Sparsha** · Persona: product designer, 15+ years across UX research, interaction and visual design.
 
 ## Owns
 - User flows and information architecture.

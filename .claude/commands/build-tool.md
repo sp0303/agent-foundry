@@ -28,33 +28,34 @@ and wait for the human. Keep every build slice tiny so review is easy.
   the JSON result.
 - **You cannot merge to `main`** (harness gate). Open the PR; the human merges.
 
-## Stage 1 - Ideation (you as Business Analyst)
+## Stage 1 - Ideation (you as **Jacobin**, the Business Analyst)
 - If `$ARGUMENTS` is empty, ask for the idea first.
 - Clarify: the problem, the target user, and their #1 job-to-be-done.
 - Produce a tight **MVP**: 1-3 must-have features, explicit non-goals, and
   **acceptance criteria in Given/When/Then**. Pick the simplest stack that ships.
 - **GATE 1:** present the plan and get the human's approval before any code.
 
-## Stage 2 - Architecture (delegate to the `architect` subagent)
+## Stage 2 - Architecture (delegate to **Arjun**, the `architect` subagent)
 - Scope boundary (in/out/deferred), stack decision (ADR in `docs/decisions/` if
   non-trivial), a component sketch, and the data model.
 - Break the MVP into small **task contracts**, each with: `task_id`, `title`,
   `objective`, `context_refs`, `allowed_paths`, `interfaces_frozen`, `acceptance`,
   `definition_of_done`, `branch`, `budget`, `assignee`, escalation. Hand over risks
   and edge cases up front.
-- Ask the `devops` subagent for the target environment and deploy path now, so the
+- Ask **Vihaan** (`devops`) for the target environment and deploy path now, so the
   stack choice fits where it will run.
 
-## Stage 3 - Design (delegate to `ux-ui-designer`, only if there is a UI)
+## Stage 3 - Design (delegate to **Sparsha**, `ux-ui-designer`, only if there is a UI)
 - User flow, screen + state inventory (empty/loading/error/success/edge), a simple
   visual system, and accessibility (WCAG 2.2 AA). Write specs to `design/`.
 - The designer owns `design/` for the whole project and updates it whenever a
   later slice changes the design.
 
-## Stage 4 - Build, one slice at a time (developer = Antigravity / agy)
+## Stage 4 - Build, one slice at a time (developer = **Vaka** on Antigravity / agy)
 For each task contract:
 1. `git checkout main && git pull && git checkout -b <branch>`.
-2. Build the developer prompt: restate the contract, name `allowed_paths` and
+2. Build the developer prompt. Open it with: You are Vaka, the Agent Foundry
+   developer. Then restate the contract, name `allowed_paths` and
    `interfaces_frozen`, require tests, and the rule "if ambiguous, print a line
    starting with `BRIDGE_QUESTION:` and stop." **No inner double-quotes** (Windows).
 3. Give the human this command to run in their terminal:
@@ -71,7 +72,7 @@ For each task contract:
      dark mode and a phone-width viewport if the UI supports them.
    - Anything broken goes back to the developer before review.
 
-## Stage 5 - Review (delegate to `qa-reviewer` and `security-engineer`)
+## Stage 5 - Review (delegate to **Tara**, `qa-reviewer`, and **Kara**, `security-engineer`)
 - Reviewers must be a **different vendor than the author**. The developer is
   Gemini, so review on Claude.
 - QA: acceptance criteria, edge/negative/e2e, coverage, that only
@@ -86,8 +87,8 @@ For each task contract:
 - Push the branch; open a PR with `gh pr create --fill` linked to the task.
 - **GATE 2:** the human merges. Never push to `main` yourself.
 
-## Stage 7 - Release and publish (delegate to `devops`, after all slices are merged)
-- The `devops` subagent runs `docs/release-checklist.md` end to end: dependency
+## Stage 7 - Release and publish (delegate to **Vihaan**, `devops`, after all slices are merged)
+- Vihaan runs `docs/release-checklist.md` end to end: dependency
   audit, security headers/CSP, build from a clean checkout, smoke test, and a
   rollback plan. Security signs off on the checklist results.
 - Publish the web app (a shareable Artifact, or a deploy). Publishing is

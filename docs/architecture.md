@@ -19,14 +19,14 @@ approve the plan, verify the result.
 
 | # | Role | Runtime / vendor | Built |
 |---|---|---|---|
-| 1 | Business analyst | Claude | charter only |
-| 2 | Architect | Claude subagent | yes |
-| 3 | UX / UI designer | Claude subagent | yes |
-| 4 | Developer | **Antigravity (agy / Gemini)** | yes (proven) |
-| 5 | QA reviewer | Claude subagent | yes |
-| 6 | Security engineer | Claude subagent | yes |
-| 7 | Skill curator | Claude subagent | yes |
-| 8 | DevOps | Claude subagent | yes |
+| 1 | **Jacobin** — Business analyst | Claude | charter only |
+| 2 | **Arjun** — Architect | Claude subagent | yes |
+| 3 | **Sparsha** — UX / UI designer | Claude subagent | yes |
+| 4 | **Vaka** — Developer | **Antigravity (agy / Gemini)** | yes (proven) |
+| 5 | **Tara** — QA reviewer | Claude subagent | yes |
+| 6 | **Kara** — Security engineer | Claude subagent | yes |
+| 7 | **Ira** — Skill curator | Claude subagent | yes |
+| 8 | **Vihaan** — DevOps | Claude subagent | yes |
 
 Plus two non-agent players: the **human sponsor** (two approval gates) and the
 **orchestrator** (currently the live Claude session; the `bridge/` server is the

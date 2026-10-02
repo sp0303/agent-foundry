@@ -121,6 +121,21 @@ The main session **never writes product code**. If a fix is needed — however
 small — write a task contract and send it to the developer. Specs in `design/` are
 updated by the designer in the same slice as any design change.
 
+## Keeping the foundry layer up to date
+
+The template repo (`sp0303/agent-foundry-template`) owns the foundry files. To
+pull improvements into a project:
+```bash
+git checkout main && git pull
+bash scripts/sync-foundry.sh
+git checkout -b chore/sync-foundry
+git add -A && git commit -m "chore: sync foundry layer"
+git push -u origin chore/sync-foundry
+```
+Then open a PR as usual. The script refuses to run if you have uncommitted edits
+to foundry files, and never touches project-owned files. To change the process
+itself, edit the template, not the project.
+
 ## agy quick reference
 
 | Need | Command |
