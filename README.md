@@ -4,17 +4,29 @@ A multi-vendor team of AI agents that builds tools. You talk to one agent (the b
 
 ## Status
 
-Research and design. No code yet.
+The team is built and in use (first project: sarey.tech). The `bridge/` server is
+a tested walking skeleton, not yet the live orchestrator.
 
-## Repository layout
+## Where things live
+
+**The foundry team layer is owned by the template repo,
+[sp0303/agent-foundry-template](https://github.com/sp0303/agent-foundry-template).**
+It is the single source of truth for `AGENTS.md`, `.claude/foundry.md`,
+`.claude/agents/`, `.claude/commands/`, `.agents/`, `agents/`, and the shared docs
+(`docs/architecture.md`, `docs/operating-guide.md`, `docs/release-checklist.md`).
+This repo holds synced copies — change them in the template, then run
+`bash scripts/sync-foundry.sh` here. `.foundry-version` records which template
+commit this repo is on.
+
+This repo owns:
 
 | Path | What it is |
 |---|---|
+| `bridge/` | The bridge server (always-on orchestrator, walking skeleton + tests). |
 | `docs/research.html` | Research and concept sheet: topology, lifecycle, roles, model routing, landscape, risks, roadmap. Open in a browser. |
 | `docs/bridge-design.md` | Design of the bridge server that connects the vendors. |
-| `docs/decisions/` | Architecture decision records (ADRs). |
-| `agents/` | Role charters, one file per agent. These become system prompts. |
-| `AGENTS.md` | Rules every coding agent reads, whatever the vendor. |
+| `docs/decisions/` | Architecture decision records (ADRs) for this repo. |
+| `CLAUDE.md` | This repo's own session notes (imports the shared foundry rules). |
 
 ## Core ideas
 

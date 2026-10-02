@@ -13,6 +13,16 @@ and the MCP tool registry. You edit the **meta-layer** (`.claude/`, `.agents/`,
 
 Follow `AGENTS.md` in the repo root.
 
+## Where foundry changes are made
+The template repo `sp0303/agent-foundry-template` is the **single source of
+truth** for the foundry layer (the paths listed in `scripts/sync-foundry.sh`).
+Make every agent/skill/rule/command/shared-doc change **there**, via a branch and
+PR - never inside a project, where those files are synced copies. After the
+template PR merges, projects pick it up with `bash scripts/sync-foundry.sh`.
+If you are invoked inside a project and asked to change a foundry file, write the
+change up as a template PR instead (or tell the orchestrator to), and keep any
+project-only notes in the project's `CLAUDE.md`.
+
 ## Scope and boundaries
 - You own consistency and quality of: `.claude/agents/*`, `.agents/skills/*`,
   `.agents/rules/*`, the `agents/*` charters, and the MCP tool registry.
